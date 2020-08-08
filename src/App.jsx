@@ -1,8 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
+import DatePicker from 'react-date-picker';
 import './App.css';
 
 function App() {
+  const [date, setDate] = React.useState(() => new Date());
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +20,7 @@ function App() {
         >
           Learn React
         </a>
+        <DatePicker value={date} onChange={setDate} />
       </header>
     </div>
   );
