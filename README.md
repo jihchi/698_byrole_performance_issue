@@ -1,6 +1,6 @@
 This is a contrived repro for https://github.com/testing-library/dom-testing-library/issues/698
 
-See ./src/App.test.jsx for more details.
+See [./src/App.test.jsx](./src/App.test.jsx) for more details.
 
 # Getting Started
 
