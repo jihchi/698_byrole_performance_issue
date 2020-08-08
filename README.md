@@ -2,6 +2,8 @@ This is a contrived repro for https://github.com/testing-library/dom-testing-lib
 
 See [./src/App.test.jsx](./src/App.test.jsx) for more details.
 
+![Screenshot](./screenshot.png)
+
 # Getting Started
 
 ```
