@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { format, subDays } from 'date-fns';
 import App from './App';
@@ -9,51 +9,50 @@ jest.mock('react-fit', () => ({
   default: (props) => props.children,
 }));
 
-const delay = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
+const today = new Date();
+const yesterday = subDays(new Date(), 1);
 
-const getCalendarButton = () =>
+const getOpenCalendarButton = () =>
   screen.getByRole('button', {
     name: (_content, element) =>
       element.className ===
       'react-date-picker__calendar-button react-date-picker__button',
   });
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
-});
-
-test('able to change the date', async () => {
+test('should not get a timeout error', async () => {
   render(<App />);
 
-  console.time('click calendar');
-  userEvent.click(getCalendarButton());
-  console.timeEnd('click calendar');
+  for (let i = 0; i < 2; i++) {
+    console.time(`#${i + 1} open calendar`);
+    userEvent.click(getOpenCalendarButton());
+    console.timeEnd(`#${i + 1} open calendar`);
 
-  console.time('pick T');
-  const T = format(new Date(), 'MMMM d, y');
-  userEvent.click(screen.getByRole('button', { name: T }));
-  console.timeEnd('pick T');
-  await delay(0.1);
+    console.time(`#${i + 1} pick today`);
+    userEvent.click(
+      screen.getByRole('button', { name: format(today, 'MMMM d, y') })
+    );
+    console.timeEnd(`#${i + 1} pick today`);
 
-  console.time('pick T-1');
-  const T_1 = format(subDays(new Date(), '1'), 'MMMM d, y');
-  userEvent.click(screen.getByRole('button', { name: T_1 }));
-  console.timeEnd('pick T-1');
-  await delay(0.1);
+    console.time(`#${i + 1} pick yesterday`);
+    userEvent.click(
+      screen.getByRole('button', { name: format(yesterday, 'MMMM d, y') })
+    );
+    console.timeEnd(`#${i + 1} pick yesterday`);
 
-  console.time('pick T-2');
-  const T_2 = format(subDays(new Date(), '2'), 'MMMM d, y');
-  userEvent.click(screen.getByRole('button', { name: T_2 }));
-  console.timeEnd('pick T-2');
-  await delay(0.1);
+    console.time(`#${i + 1} unmount calendar`);
+    userEvent.click(screen.getByRole('button', { name: 'Hide' }));
+    console.timeEnd(`#${i + 1} unmount calendar`);
 
-  console.time('pick T-3');
-  const T_3 = format(subDays(new Date(), '3'), 'MMMM d, y');
-  userEvent.click(screen.getByRole('button', { name: T_3 }));
-  console.timeEnd('pick T-3');
-  await delay(0.1);
+    console.time(`#${i + 1} wait for "Show" button`);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Show' })));
+    console.timeEnd(`#${i + 1} wait for "Show" button`);
 
-  expect(true).toEqual(false);
+    console.time(`#${i + 1} mount calendar`);
+    userEvent.click(screen.getByRole('button', { name: 'Show' }));
+    console.timeEnd(`#${i + 1} mount calendar`);
+  }
+
+  expect(document.querySelector('input[name="date"]').value).toEqual(
+    format(yesterday, 'y-MM-dd')
+  );
 });
